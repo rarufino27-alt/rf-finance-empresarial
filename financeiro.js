@@ -48,4 +48,25 @@ precoIdeal(produto, margemPercentual) {
 lucroUnitario(produto, precoVenda) {
   return precoVenda - this.custoTotalProduto(produto);
 }
+
+resultadoGeral() {
+  const vendas = DataManager.get("vendas") || [];
+  const custoFixo = this.custoFixoMensal();
+
+  const faturamento = vendas.reduce((t, v) => t + v.precoVenda, 0);
+  const lucroProdutos = vendas.reduce((t, v) => t + v.lucro, 0);
+
+  const resultado = lucroProdutos - custoFixo;
+
+  return {
+    faturamento,
+    custoFixo,
+    lucroProdutos,
+    resultado,
+    status:
+      resultado > 0 ? "lucro" :
+      resultado < 0 ? "prejuizo" :
+      "empate"
+  };
+}
 };
