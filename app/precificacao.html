@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Precificação | RF Finance Empresarial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../theme/variables.css">
+<link rel="stylesheet" href="../theme/global.css">
+</head>
+<body>
+
+<main class="container">
+  <h1>Precificação Automática</h1>
+  <p>Escolha o produto e defina a margem desejada.</p>
+
+  <label>Produto</label>
+  <select id="produto"></select>
+
+  <label>Margem de Lucro (%)</label>
+  <input id="margem" type="number" placeholder="Ex: 30">
+
+  <button onclick="calcular()">Calcular Preço</button>
+
+  <div id="resultado" style="display:none; margin-top:20px;">
+    <h2>Resultado</h2>
+
+    <p>Custo unitário: R$ <strong id="custo"></strong></p>
+    <p>Preço mínimo: R$ <strong id="minimo"></strong></p>
+    <p>Preço ideal: R$ <strong id="ideal"></strong></p>
+    <p>Lucro por unidade: R$ <strong id="lucro"></strong></p>
+  </div>
+</main>
+
+<script src="../core/storage.js"></script>
+<script src="../core/datamanager.js"></script>
+<script src="../core/financeiro.js"></script>
+
+<script>
+function carregarProdutos() {
+  const select = document.getElementById("produto");
+  const produtos = DataManager.get("produtos") || [];
+
+  produtos.forEach((p, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = p.nome;
+    select.appendChild(option);
+  });
+}
+
+function calcular() {
+  const index = produto.value;
+  const margemPercentual = Number(margem.value);
+
+  if (margemPercentual <= 0) {
+    alert("Informe uma margem válida");
+    return;
+  }
+
+  const prod = DataManager.get("produtos")[index];
+
+  const custo = Financeiro.custoTotalProduto(prod);
+  const minimo = Financeiro.precoMinimo(prod);
+  const ideal = Financeiro.precoIdeal(prod, margemPercentual);
+  const lucro = Financeiro.lucroUnitario(prod, ideal);
+
+  document.getElementById("custo").innerText = custo.toFixed(2);
+  document.getElementById("minimo").innerText = minimo.toFixed(2);
+  document.getElementById("ideal").innerText = ideal.toFixed(2);
+  document.getElementById("lucro").innerText = lucro.toFixed(2);
+
+  document.getElementById("resultado").style.display = "block";
+}
+
+carregarProdutos();
+</script>
+
+</body>
+</html>
