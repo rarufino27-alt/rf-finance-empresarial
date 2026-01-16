@@ -35,4 +35,17 @@ const Financeiro = {
     const margemTotal = vendas.reduce((t, v) => t + v.lucro, 0);
     return margemTotal > 0 ? fixo / margemTotal : 0;
   }
+
+precoMinimo(produto) {
+  return this.custoTotalProduto(produto);
+},
+
+precoIdeal(produto, margemPercentual) {
+  const custo = this.custoTotalProduto(produto);
+  return custo / (1 - margemPercentual / 100);
+},
+
+lucroUnitario(produto, precoVenda) {
+  return precoVenda - this.custoTotalProduto(produto);
+}
 };
