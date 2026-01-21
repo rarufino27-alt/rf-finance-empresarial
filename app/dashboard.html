@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard | RF Finance Empresarial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../theme/variables.css">
+<link rel="stylesheet" href="../theme/global.css">
+</head>
+<body>
+
+<main class="container">
+  <h1>Dashboard Financeiro</h1>
+
+  <div class="card">
+    <p>Receita Total</p>
+    <h2>R$ <span id="receita">0,00</span></h2>
+  </div>
+
+  <div class="card">
+    <p>Custo dos Produtos</p>
+    <h2>R$ <span id="custos">0,00</span></h2>
+  </div>
+
+  <div class="card">
+    <p>Impostos</p>
+    <h2>R$ <span id="impostos">0,00</span></h2>
+  </div>
+
+  <div class="card">
+    <p>Custo com Funcionários</p>
+    <h2>R$ <span id="funcionarios">0,00</span></h2>
+  </div>
+
+  <div class="resultado" id="resultadoBox">
+    <h2 id="resultadoValor">R$ 0,00</h2>
+    <p id="status">Status</p>
+  </div>
+</main>
+
+<script src="../core/datamanager.js"></script>
+<script src="../core/resultado.engine.js"></script>
+
+<script>
+function render() {
+  const r = ResultadoEngine.calcular();
+
+  receita.innerText = r.receita.toFixed(2);
+  custos.innerText = r.custoProdutos.toFixed(2);
+  impostos.innerText = r.impostos.toFixed(2);
+  funcionarios.innerText = r.custoFuncionarios.toFixed(2);
+
+  resultadoValor.innerText = "R$ " + r.resultado.toFixed(2);
+
+  const box = document.getElementById("resultadoBox");
+  const status = document.getElementById("status");
+
+  if (r.status === "lucro") {
+    box.className = "resultado lucro";
+    status.innerText = "Lucro";
+  } else if (r.status === "prejuizo") {
+    box.className = "resultado prejuizo";
+    status.innerText = "Prejuízo";
+  } else {
+    box.className = "resultado empate";
+    status.innerText = "Empate";
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
