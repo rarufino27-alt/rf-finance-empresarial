@@ -5,10 +5,15 @@
 <title>Relatórios Mensais | RF Finance Empresarial</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="manifest" href="../manifest.json">
+
 <link rel="stylesheet" href="../theme/variables.css">
 <link rel="stylesheet" href="../theme/global.css">
 </head>
 <body>
+
+<!-- MENU -->
+<div id="menu"></div>
 
 <main class="container">
   <h1>Relatório Mensal</h1>
@@ -31,24 +36,35 @@
   </div>
 </main>
 
+<!-- CORE SCRIPTS -->
 <script src="../core/datamanager.js"></script>
 <script src="../core/relatorios.engine.js"></script>
 
+<!-- MENU LOAD -->
+<script>
+fetch("menu.html")
+  .then(r => r.text())
+  .then(html => document.getElementById("menu").innerHTML = html);
+</script>
+
+<!-- RELATÓRIO LOGIC -->
 <script>
 function gerar() {
-  if (!mes.value) {
+  const mesEl = document.getElementById("mes");
+
+  if (!mesEl.value) {
     alert("Selecione um mês");
     return;
   }
 
-  const [ano, m] = mes.value.split("-");
+  const [ano, m] = mesEl.value.split("-");
   const r = RelatoriosEngine.mensal(Number(ano), Number(m) - 1);
 
-  totalVendas.innerText = r.totalVendas;
-  receita.innerText = r.receita.toFixed(2);
-  custos.innerText = r.custoProdutos.toFixed(2);
-  impostos.innerText = r.impostos.toFixed(2);
-  lucro.innerText = r.lucro.toFixed(2);
+  document.getElementById("totalVendas").innerText = r.totalVendas;
+  document.getElementById("receita").innerText = r.receita.toFixed(2);
+  document.getElementById("custos").innerText = r.custoProdutos.toFixed(2);
+  document.getElementById("impostos").innerText = r.impostos.toFixed(2);
+  document.getElementById("lucro").innerText = r.lucro.toFixed(2);
 
   const box = document.getElementById("statusBox");
   box.innerText =
@@ -57,7 +73,14 @@ function gerar() {
     "Empate";
 
   box.className = "resultado " + r.status;
-  resultado.style.display = "block";
+  document.getElementById("resultado").style.display = "block";
+}
+</script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("../service-worker.js");
 }
 </script>
 
