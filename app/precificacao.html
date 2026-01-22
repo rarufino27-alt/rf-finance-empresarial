@@ -5,10 +5,15 @@
 <title>Precificação | RF Finance Empresarial</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="manifest" href="../manifest.json">
+
 <link rel="stylesheet" href="../theme/variables.css">
 <link rel="stylesheet" href="../theme/global.css">
 </head>
 <body>
+
+<!-- MENU -->
+<div id="menu"></div>
 
 <main class="container">
   <h1>Precificação Inteligente</h1>
@@ -18,7 +23,7 @@
   <select id="produto"></select>
 
   <label>Margem de Lucro Desejada (%)</label>
-  <input id="margem" type="number" placeholder="Ex: 30">
+  <input id="margem" type="number" min="0" placeholder="Ex: 30">
 
   <button onclick="calcular()">Calcular Preço</button>
 
@@ -37,15 +42,34 @@
   </div>
 </main>
 
+<!-- CORE SCRIPTS -->
 <script src="../core/datamanager.js"></script>
 <script src="../core/custos.engine.js"></script>
 <script src="../core/impostos.engine.js"></script>
 <script src="../core/precificacao.engine.js"></script>
 
+<!-- MENU LOAD -->
+<script>
+fetch("menu.html")
+  .then(r => r.text())
+  .then(html => document.getElementById("menu").innerHTML = html);
+</script>
+
+<!-- PRECIFICAÇÃO LOGIC -->
 <script>
 function carregarProdutos() {
   const select = document.getElementById("produto");
+  select.innerHTML = "";
+
   const produtos = DataManager.get("produtos") || [];
+
+  if (produtos.length === 0) {
+    const op = document.createElement("option");
+    op.textContent = "Nenhum produto cadastrado";
+    op.disabled = true;
+    select.appendChild(op);
+    return;
+  }
 
   produtos.forEach((p, i) => {
     const option = document.createElement("option");
@@ -56,27 +80,41 @@ function carregarProdutos() {
 }
 
 function calcular() {
-  if (!margem.value) {
-    alert("Informe a margem desejada");
+  const margemEl = document.getElementById("margem");
+  const produtoEl = document.getElementById("produto");
+
+  if (!margemEl.value || Number(margemEl.value) < 0) {
+    alert("Informe uma margem válida");
     return;
   }
 
-  const prod = DataManager.get("produtos")[produto.value];
-  const margem = Number(margem.value);
+  const prod = DataManager.get("produtos")[produtoEl.value];
+  if (!prod) {
+    alert("Selecione um produto válido");
+    return;
+  }
 
+  const margem = Number(margemEl.value);
   const r = PrecificacaoEngine.calcular(prod, margem);
 
-  custo.innerText = r.custo.toFixed(2);
-  impostoPerc.innerText = r.impostoPercentual.toFixed(2);
-  impostoVal.innerText = r.impostoValor.toFixed(2);
-  minimo.innerText = r.precoMinimo.toFixed(2);
-  ideal.innerText = r.precoIdeal.toFixed(2);
-  lucro.innerText = r.lucroUnitario.toFixed(2);
+  document.getElementById("custo").innerText = r.custo.toFixed(2);
+  document.getElementById("impostoPerc").innerText = r.impostoPercentual.toFixed(2);
+  document.getElementById("impostoVal").innerText = r.impostoValor.toFixed(2);
+  document.getElementById("minimo").innerText = r.precoMinimo.toFixed(2);
+  document.getElementById("ideal").innerText = r.precoIdeal.toFixed(2);
+  document.getElementById("lucro").innerText = r.lucroUnitario.toFixed(2);
 
-  resultado.style.display = "block";
+  document.getElementById("resultado").style.display = "block";
 }
 
 carregarProdutos();
+</script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("../service-worker.js");
+}
 </script>
 
 </body>
