@@ -121,3 +121,21 @@ li button {
   background: #E5E7EB;
   color: #374151;
 }
+
+.menu {
+  display: flex;
+  justify-content: space-around;
+  background: var(--primary-dark);
+  padding: 12px;
+}
+
+.menu a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.menu a:hover {
+  text-decoration: underline;
+}
