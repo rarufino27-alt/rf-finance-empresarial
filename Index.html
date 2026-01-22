@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>RF Finance Empresarial</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="manifest" href="./manifest.json">
+
   <link rel="stylesheet" href="./theme/variables.css">
   <link rel="stylesheet" href="./theme/global.css">
 </head>
@@ -17,6 +20,13 @@
       Acessar Sistema
     </a>
   </main>
+
+  <!-- SERVICE WORKER -->
+  <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js");
+  }
+  </script>
 
 </body>
 </html>
