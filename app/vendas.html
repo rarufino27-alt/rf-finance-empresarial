@@ -5,10 +5,15 @@
 <title>Vendas | RF Finance Empresarial</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="manifest" href="../manifest.json">
+
 <link rel="stylesheet" href="../theme/variables.css">
 <link rel="stylesheet" href="../theme/global.css">
 </head>
 <body>
+
+<!-- MENU -->
+<div id="menu"></div>
 
 <main class="container">
   <h1>Registrar Venda</h1>
@@ -21,7 +26,7 @@
   <input id="margem" type="number" placeholder="Ex: 30">
 
   <label>Quantidade</label>
-  <input id="quantidade" type="number" value="1">
+  <input id="quantidade" type="number" value="1" min="1">
 
   <button onclick="registrarVenda()">Registrar Venda</button>
 
@@ -33,14 +38,25 @@
   </div>
 </main>
 
+<!-- CORE SCRIPTS -->
 <script src="../core/datamanager.js"></script>
 <script src="../core/custos.engine.js"></script>
 <script src="../core/impostos.engine.js"></script>
 <script src="../core/precificacao.engine.js"></script>
 
+<!-- MENU LOAD -->
+<script>
+fetch("menu.html")
+  .then(r => r.text())
+  .then(html => document.getElementById("menu").innerHTML = html);
+</script>
+
+<!-- VENDAS LOGIC -->
 <script>
 function carregarProdutos() {
   const select = document.getElementById("produto");
+  select.innerHTML = "";
+
   const produtos = DataManager.get("produtos") || [];
 
   produtos.forEach((p, i) => {
@@ -52,14 +68,22 @@ function carregarProdutos() {
 }
 
 function registrarVenda() {
-  if (!margem.value || !quantidade.value) {
-    alert("Informe margem e quantidade");
+  const margemEl = document.getElementById("margem");
+  const qtdEl = document.getElementById("quantidade");
+
+  if (!margemEl.value || !qtdEl.value || Number(qtdEl.value) <= 0) {
+    alert("Informe uma margem válida e quantidade maior que zero");
     return;
   }
 
   const prod = DataManager.get("produtos")[produto.value];
-  const margemLucro = Number(margem.value);
-  const qtd = Number(quantidade.value);
+  if (!prod) {
+    alert("Selecione um produto");
+    return;
+  }
+
+  const margemLucro = Number(margemEl.value);
+  const qtd = Number(qtdEl.value);
 
   const r = PrecificacaoEngine.calcular(prod, margemLucro);
 
@@ -73,15 +97,22 @@ function registrarVenda() {
     data: new Date().toISOString()
   });
 
-  precoUnit.innerText = r.precoIdeal.toFixed(2);
-  impostoUnit.innerText = r.impostoValor.toFixed(2);
-  lucroUnit.innerText = r.lucroUnitario.toFixed(2);
-  preview.style.display = "block";
+  document.getElementById("precoUnit").innerText = r.precoIdeal.toFixed(2);
+  document.getElementById("impostoUnit").innerText = r.impostoValor.toFixed(2);
+  document.getElementById("lucroUnit").innerText = r.lucroUnitario.toFixed(2);
+  document.getElementById("preview").style.display = "block";
 
   alert("Venda registrada com sucesso");
 }
 
 carregarProdutos();
+</script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("../service-worker.js");
+}
 </script>
 
 </body>
