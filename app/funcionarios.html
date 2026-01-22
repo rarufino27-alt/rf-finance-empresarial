@@ -5,10 +5,15 @@
 <title>Funcionários | RF Finance Empresarial</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="manifest" href="../manifest.json">
+
 <link rel="stylesheet" href="../theme/variables.css">
 <link rel="stylesheet" href="../theme/global.css">
 </head>
 <body>
+
+<!-- MENU -->
+<div id="menu"></div>
 
 <main class="container">
   <h1>Funcionários</h1>
@@ -18,14 +23,14 @@
   <input id="nome" type="text" placeholder="Ex: João da Silva">
 
   <label>Salário Bruto Mensal (R$)</label>
-  <input id="salario" type="number" step="0.01" placeholder="Ex: 1800">
+  <input id="salario" type="number" step="0.01" min="0" placeholder="Ex: 1800">
 
   <label>Encargos (%)</label>
-  <input id="encargos" type="number" step="0.01" placeholder="Ex: 70">
+  <input id="encargos" type="number" step="0.01" min="0" placeholder="Ex: 70">
   <small>Se não souber, use 70% (padrão Brasil).</small>
 
   <label>Horas Trabalhadas no Mês</label>
-  <input id="horas" type="number" placeholder="Ex: 220">
+  <input id="horas" type="number" min="1" placeholder="Ex: 220">
 
   <button onclick="salvar()">Adicionar Funcionário</button>
 
@@ -35,21 +40,35 @@
   <ul id="lista"></ul>
 </main>
 
+<!-- CORE SCRIPTS -->
 <script src="../core/datamanager.js"></script>
 <script src="../core/maoobra.engine.js"></script>
 
+<!-- MENU LOAD -->
+<script>
+fetch("menu.html")
+  .then(r => r.text())
+  .then(html => document.getElementById("menu").innerHTML = html);
+</script>
+
+<!-- FUNCIONÁRIOS LOGIC -->
 <script>
 function salvar() {
-  if (!nome.value || !salario.value || !horas.value) {
+  const nomeEl = document.getElementById("nome");
+  const salarioEl = document.getElementById("salario");
+  const encargosEl = document.getElementById("encargos");
+  const horasEl = document.getElementById("horas");
+
+  if (!nomeEl.value || !salarioEl.value || !horasEl.value) {
     alert("Preencha todos os campos obrigatórios");
     return;
   }
 
   DataManager.push("funcionarios", {
-    nome: nome.value,
-    salario: Number(salario.value),
-    encargos: Number(encargos.value || 70),
-    horasMensais: Number(horas.value)
+    nome: nomeEl.value,
+    salario: Number(salarioEl.value),
+    encargos: Number(encargosEl.value || 70),
+    horasMensais: Number(horasEl.value)
   });
 
   limpar();
@@ -57,10 +76,10 @@ function salvar() {
 }
 
 function limpar() {
-  nome.value = "";
-  salario.value = "";
-  encargos.value = "";
-  horas.value = "";
+  document.getElementById("nome").value = "";
+  document.getElementById("salario").value = "";
+  document.getElementById("encargos").value = "";
+  document.getElementById("horas").value = "";
 }
 
 function render() {
@@ -68,6 +87,11 @@ function render() {
   lista.innerHTML = "";
 
   const funcionarios = DataManager.get("funcionarios") || [];
+
+  if (funcionarios.length === 0) {
+    lista.innerHTML = "<li><em>Nenhum funcionário cadastrado.</em></li>";
+    return;
+  }
 
   funcionarios.forEach((f, i) => {
     const custoHora = MaoDeObraEngine.custoHora(f).toFixed(2);
@@ -93,6 +117,13 @@ function remover(index) {
 }
 
 render();
+</script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("../service-worker.js");
+}
 </script>
 
 </body>
