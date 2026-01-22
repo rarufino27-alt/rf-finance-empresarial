@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatórios Mensais | RF Finance Empresarial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../theme/variables.css">
+<link rel="stylesheet" href="../theme/global.css">
+</head>
+<body>
+
+<main class="container">
+  <h1>Relatório Mensal</h1>
+
+  <label>Mês</label>
+  <input id="mes" type="month">
+
+  <button onclick="gerar()">Gerar Relatório</button>
+
+  <div id="resultado" style="display:none; margin-top:20px;">
+    <h2>Resumo do Mês</h2>
+
+    <p>Total de vendas: <strong id="totalVendas"></strong></p>
+    <p>Receita: R$ <strong id="receita"></strong></p>
+    <p>Custo dos produtos: R$ <strong id="custos"></strong></p>
+    <p>Impostos: R$ <strong id="impostos"></strong></p>
+    <p>Lucro / Prejuízo: R$ <strong id="lucro"></strong></p>
+
+    <div id="statusBox" class="resultado"></div>
+  </div>
+</main>
+
+<script src="../core/datamanager.js"></script>
+<script src="../core/relatorios.engine.js"></script>
+
+<script>
+function gerar() {
+  if (!mes.value) {
+    alert("Selecione um mês");
+    return;
+  }
+
+  const [ano, m] = mes.value.split("-");
+  const r = RelatoriosEngine.mensal(Number(ano), Number(m) - 1);
+
+  totalVendas.innerText = r.totalVendas;
+  receita.innerText = r.receita.toFixed(2);
+  custos.innerText = r.custoProdutos.toFixed(2);
+  impostos.innerText = r.impostos.toFixed(2);
+  lucro.innerText = r.lucro.toFixed(2);
+
+  const box = document.getElementById("statusBox");
+  box.innerText =
+    r.status === "lucro" ? "Lucro" :
+    r.status === "prejuizo" ? "Prejuízo" :
+    "Empate";
+
+  box.className = "resultado " + r.status;
+  resultado.style.display = "block";
+}
+</script>
+
+</body>
+</html>
