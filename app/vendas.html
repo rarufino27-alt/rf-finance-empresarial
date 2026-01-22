@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Vendas | RF Finance Empresarial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../theme/variables.css">
+<link rel="stylesheet" href="../theme/global.css">
+</head>
+<body>
+
+<main class="container">
+  <h1>Registrar Venda</h1>
+  <p>O sistema registra a venda com custo, imposto e lucro reais.</p>
+
+  <label>Produto</label>
+  <select id="produto"></select>
+
+  <label>Margem de Lucro (%)</label>
+  <input id="margem" type="number" placeholder="Ex: 30">
+
+  <label>Quantidade</label>
+  <input id="quantidade" type="number" value="1">
+
+  <button onclick="registrarVenda()">Registrar Venda</button>
+
+  <div id="preview" style="display:none; margin-top:20px;">
+    <h2>Resumo da Venda</h2>
+    <p>Preço unitário: R$ <strong id="precoUnit"></strong></p>
+    <p>Imposto unitário: R$ <strong id="impostoUnit"></strong></p>
+    <p>Lucro unitário: R$ <strong id="lucroUnit"></strong></p>
+  </div>
+</main>
+
+<script src="../core/datamanager.js"></script>
+<script src="../core/custos.engine.js"></script>
+<script src="../core/impostos.engine.js"></script>
+<script src="../core/precificacao.engine.js"></script>
+
+<script>
+function carregarProdutos() {
+  const select = document.getElementById("produto");
+  const produtos = DataManager.get("produtos") || [];
+
+  produtos.forEach((p, i) => {
+    const op = document.createElement("option");
+    op.value = i;
+    op.textContent = p.nome;
+    select.appendChild(op);
+  });
+}
+
+function registrarVenda() {
+  if (!margem.value || !quantidade.value) {
+    alert("Informe margem e quantidade");
+    return;
+  }
+
+  const prod = DataManager.get("produtos")[produto.value];
+  const margemLucro = Number(margem.value);
+  const qtd = Number(quantidade.value);
+
+  const r = PrecificacaoEngine.calcular(prod, margemLucro);
+
+  DataManager.push("vendas", {
+    produto: prod.nome,
+    quantidade: qtd,
+    precoVenda: r.precoIdeal * qtd,
+    custoProduto: r.custo * qtd,
+    imposto: r.impostoValor * qtd,
+    lucro: r.lucroUnitario * qtd,
+    data: new Date().toISOString()
+  });
+
+  precoUnit.innerText = r.precoIdeal.toFixed(2);
+  impostoUnit.innerText = r.impostoValor.toFixed(2);
+  lucroUnit.innerText = r.lucroUnitario.toFixed(2);
+  preview.style.display = "block";
+
+  alert("Venda registrada com sucesso");
+}
+
+carregarProdutos();
+</script>
+
+</body>
+</html>
