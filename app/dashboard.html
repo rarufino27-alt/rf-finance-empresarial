@@ -5,10 +5,15 @@
 <title>Dashboard | RF Finance Empresarial</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="manifest" href="../manifest.json">
+
 <link rel="stylesheet" href="../theme/variables.css">
 <link rel="stylesheet" href="../theme/global.css">
 </head>
 <body>
+
+<!-- MENU -->
+<div id="menu"></div>
 
 <main class="container">
   <h1>Dashboard Financeiro</h1>
@@ -39,19 +44,29 @@
   </div>
 </main>
 
+<!-- SCRIPTS CORE -->
 <script src="../core/datamanager.js"></script>
 <script src="../core/resultado.engine.js"></script>
 
+<!-- MENU LOAD -->
+<script>
+fetch("menu.html")
+  .then(r => r.text())
+  .then(html => document.getElementById("menu").innerHTML = html);
+</script>
+
+<!-- DASHBOARD LOGIC -->
 <script>
 function render() {
   const r = ResultadoEngine.calcular();
 
-  receita.innerText = r.receita.toFixed(2);
-  custos.innerText = r.custoProdutos.toFixed(2);
-  impostos.innerText = r.impostos.toFixed(2);
-  funcionarios.innerText = r.custoFuncionarios.toFixed(2);
+  document.getElementById("receita").innerText = r.receita.toFixed(2);
+  document.getElementById("custos").innerText = r.custoProdutos.toFixed(2);
+  document.getElementById("impostos").innerText = r.impostos.toFixed(2);
+  document.getElementById("funcionarios").innerText = r.custoFuncionarios.toFixed(2);
 
-  resultadoValor.innerText = "R$ " + r.resultado.toFixed(2);
+  document.getElementById("resultadoValor").innerText =
+    "R$ " + r.resultado.toFixed(2);
 
   const box = document.getElementById("resultadoBox");
   const status = document.getElementById("status");
@@ -69,6 +84,13 @@ function render() {
 }
 
 render();
+</script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("../service-worker.js");
+}
 </script>
 
 </body>
